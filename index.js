@@ -1,5 +1,1 @@
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports.default = require('./lib/Model');
+module.exports = require('./lib/Model');

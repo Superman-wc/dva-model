@@ -63,7 +63,7 @@ export default function Model({
   const service_effects = Object.keys(service).reduce((eff, key) => {
     const reducer = key + 'Success';
     eff[key] = effect(service[key], reducer, caches[key]);
-    service_reducers[reducer] = RestfulReducers[key] || ((state, action) => {
+    service_reducers[reducer] = RestfulReducers[reducer] || ((state, action) => {
       return {...loaded(state, action), [key]: action.result };
     });
     return eff;

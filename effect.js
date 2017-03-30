@@ -1,4 +1,1 @@
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = require('./lib/effect')
+module.exports = require('./lib/effect');

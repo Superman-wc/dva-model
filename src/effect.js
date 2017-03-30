@@ -50,7 +50,9 @@ export default function effect(opt = {}) {
         }
       }
       try {
-        yield saga.put({type: 'loading', source: action});
+        const loadingAction = {type: 'loading', source: action};
+        yield saga.put(loadingAction);
+        isFunction(effect.loading) && effect.loading(loadingAction);
         var {result, err} = yield saga.call(api, payload);
         if (err) {
           throw err;
@@ -64,9 +66,10 @@ export default function effect(opt = {}) {
           };
           yield saga.put(_action);
           yield saga.put({
-            ...action,
+            ..._action,
             type: action.afterSuccess || afterSuccess(success),
           });
+          isFunction(effect.loaded) && effect.loaded(result);
           isFunction(callback) && callback(result);
           isFunction(action.callback) && action.callback(result);
           isFunction(action.resolve) && action.resolve(result);
