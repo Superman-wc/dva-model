@@ -1,6 +1,6 @@
 {
   "name": "dva-model",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "dva.js Model",
   "scripts": {
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha --no-timeouts",
