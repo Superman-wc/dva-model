@@ -2,31 +2,31 @@ import effect, { loading, failed, loaded } from './effect';
 
 export const RestfulReducers = {
   listSuccess(state, action) {
-    const { total } = action.result;
-    const list = action.result[action.source && action.source.result || 'list'];
-    return {...loaded(state, action), list, total };
-  },
-  itemSuccess(state, action) {
+    const {result={}, source={}} = action;
     return {
       ...loaded(state, action),
-      item: (action.source && action.source.result) ? action.result[action.source.result] : action.result
+      list: result[source.result || 'list'],
+      total:result.total
+    };
+  },
+  itemSuccess(state, action) {
+    const {result={}, source={}} = action;
+    return {
+      ...loaded(state, action),
+      item: source.result ? result[source.result] : result
     };
   },
   createSuccess(state, action) {
-    let { list = [], total = 0 } = state;
-    list.unshift(action.result);
-    total += 1;
-    return {...loaded(state, action), list, total, item: action.result };
+    const { list = [], total = 0 } = state;
+    const {result} = action;
+    list.unshift(result);
+    return {...loaded(state, action), list, total:total+1, item: result };
   },
   modifySuccess(state, action) {
     let { list } = state;
     if (list && list.length) {
-      list = list.reduce((arr, cur) => {
-        if (cur.id != action.payload.id) {
-          arr.push(cur);
-        } else {
-          arr.push(action.result);
-        }
+      list = list.reduce((arr, it) => {
+        arr.push(it.id != action.payload.id ? it : action.result);
         return arr;
       }, []);
     }
@@ -41,9 +41,9 @@ export const RestfulReducers = {
       total = total - 1;
     }
     if (list && list.length) {
-      list = list.reduce((arr, cur) => {
-        if (cur.id != action.payload.id) {
-          arr.push(cur);
+      list = list.reduce((arr, it) => {
+        if (it.id != action.payload.id) {
+          arr.push(it);
         }
         return arr;
       }, []);
@@ -63,9 +63,7 @@ export default function Model({
   const service_effects = Object.keys(service).reduce((eff, key) => {
     const reducer = key + 'Success';
     eff[key] = effect(service[key], reducer, caches[key]);
-    service_reducers[reducer] = RestfulReducers[reducer] || ((state, action) => {
-      return {...loaded(state, action), [key]: action.result };
-    });
+    service_reducers[reducer] = RestfulReducers[reducer] || ((state, action) => ({...loaded(state, action), [key]: action.result }));
     return eff;
   }, {});
 
@@ -73,16 +71,12 @@ export default function Model({
     if (/Success$/gi.test(key)) {
       if (typeof reducers[key] === 'string') {
         const _key = key.replace(/Success$/gi, '');
-        m[key] = (state, action) => {
-          return {
+        m[key] = (state, action) => ({
             ...loaded(state, action),
             [_key]: reducers[key] === '' ? action.result : action.result[reducers[key]]
-          };
-        }
+          });
       } else {
-        m[key] = (state, action) => {
-          return reducers[key](loaded(state, action), action);
-        }
+        m[key] = (state, action) => reducers[key](loaded(state, action), action);
       }
     } else {
       m[key] = reducers[key];
