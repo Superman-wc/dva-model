@@ -49,7 +49,7 @@ export default Model({
 ```
 
 
-`Model(model, service, )` 会自动处理 effects 与 reducers，
+`Model(model, service, cache)` 会自动处理 effects 与 reducers，
 并且effect 调用时会put({loading, apiName+'Loading'})到state[namespace];
 effect结束时，loading, apiName+'Loading'会从state[namespce]中删除；
 
