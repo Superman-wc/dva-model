@@ -1,56 +1,6 @@
-import effect, { loading, failed, loaded } from './effect';
+import effect from './effect';
+import restful from './restful';
 
-export const RestfulReducers = {
-  listSuccess(state, action) {
-    const {result={}, source={}} = action;
-    return {
-      ...loaded(state, action),
-      list: result[source.result || 'list'],
-      total:result.total
-    };
-  },
-  itemSuccess(state, action) {
-    const {result={}, source={}} = action;
-    return {
-      ...loaded(state, action),
-      item: source.result ? result[source.result] : result
-    };
-  },
-  createSuccess(state, action) {
-    const { list = [], total = 0 } = state;
-    const {result} = action;
-    list.unshift(result);
-    return {...loaded(state, action), list, total:total+1, item: result };
-  },
-  modifySuccess(state, action) {
-    let { list } = state;
-    if (list && list.length) {
-      list = list.reduce((arr, it) => {
-        arr.push(it.id != action.payload.id ? it : action.result);
-        return arr;
-      }, []);
-    }
-    return {...loaded(state, action), list, item: action.result };
-  },
-  removeSuccess(state, action) {
-    let { item, list, total } = state;
-    if (item && item.id == action.payload.id) {
-      delete state.item;
-    }
-    if (total) {
-      total = total - 1;
-    }
-    if (list && list.length) {
-      list = list.reduce((arr, it) => {
-        if (it.id != action.payload.id) {
-          arr.push(it);
-        }
-        return arr;
-      }, []);
-    }
-    return {...loaded(state, action), list, total };
-  },
-};
 
 export default function Model({
   namespace = "",
@@ -62,8 +12,8 @@ export default function Model({
   const service_reducers = {};
   const service_effects = Object.keys(service).reduce((eff, key) => {
     const reducer = key + 'Success';
-    eff[key] = effect(service[key], reducer, caches[key]);
-    service_reducers[reducer] = RestfulReducers[reducer] || ((state, action) => ({...loaded(state, action), [key]: action.result }));
+    eff[key] = effect(service[key], reducer, key+'Failed', caches[key]);
+    service_reducers[reducer] = restful[reducer] || ((state, action) => ({...state, [key]: action.payload }));
     return eff;
   }, {});
 
@@ -72,11 +22,11 @@ export default function Model({
       if (typeof reducers[key] === 'string') {
         const _key = key.replace(/Success$/gi, '');
         m[key] = (state, action) => ({
-            ...loaded(state, action),
-            [_key]: reducers[key] === '' ? action.result : action.result[reducers[key]]
+            ...state,
+            [_key]: reducers[key] === '' ? action.payload : action.payload[reducers[key]]
           });
       } else {
-        m[key] = (state, action) => reducers[key](loaded(state, action), action);
+        m[key] = (state, action) => reducers[key](state, action);
       }
     } else {
       m[key] = reducers[key];
@@ -84,17 +34,15 @@ export default function Model({
     return m;
   }, {});
 
-  const model = {
+  return {
     namespace,
-    state: {...state },
-    subscriptions: {...subscriptions },
+    state,
+    subscriptions,
     effects: {
       ...service_effects,
       ...effects
     },
     reducers: {
-      loading,
-      failed,
       set(state, action) {
         return {...state, ...action.payload };
       },
@@ -105,5 +53,4 @@ export default function Model({
       ...successReducers
     }
   };
-  return model;
 };

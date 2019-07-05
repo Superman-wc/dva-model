@@ -1,6 +1,6 @@
 {
   "name": "dva-model",
-  "version": "0.0.12",
+  "version": "2.0.0",
   "description": "dva.js Model",
   "scripts": {
     "test": "npm run lint && cross-env NODE_ENV=test nyc mocha --no-timeouts",
@@ -9,7 +9,7 @@
     "lint": "eslint --ext .js src test",
     "report": "nyc report --reporter=html",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "precommit": "npm run lint"
+    "-precommit": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -26,21 +26,7 @@
   },
   "homepage": "https://github.com/Superman-wc/dva-model#readme",
   "dependencies": {
-    "@types/react-router-redux": "^4.0.40",
-    "@types/react-router": "2.x",
-    "babel-runtime": "^6.11.6",
-    "flatten": "^1.0.2",
-    "global": "^4.3.1",
-    "invariant": "^2.2.1",
-    "is-plain-object": "^2.0.1",
-    "isomorphic-fetch": "^2.2.1",
-    "lodash.isfunction": "^3.0.8",
-    "react-redux": "4.4.x",
-    "react-router": "^2.8.1",
-    "react-router-redux": "^4.0.5",
-    "redux": "^3.6.0",
-    "redux-saga": "^0.14.0",
-    "warning": "^3.0.0"
+    "babel-runtime": "^6.11.6"
   },
   "devDependencies": {
     "babel-cli": "^6.14.0",
@@ -67,8 +53,6 @@
     "jsdom": "^9.5.0",
     "mocha": "^3.0.2",
     "nyc": "^8.1.0",
-    "react": "^15.3.1",
-    "react-dom": "^15.3.1",
     "rimraf": "^2.5.4",
     "uglifyjs": "^2.4.10"
   },

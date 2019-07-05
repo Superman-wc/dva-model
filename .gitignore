@@ -8,3 +8,4 @@ coverage
 npm-debug.log*
 test/typescript/*.map
 test/typescript/*.jsx
+.idea/
