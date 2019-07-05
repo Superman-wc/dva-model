@@ -1,5 +1,24 @@
 # dva-model
 
+## 0.0.13 升级到2.X
+去除了很多不必要的方法
+修复了已知的BUG
+effect不再支持{api, success...}的写法了，请使用下面的写法
+```
+effect(api, success, fail = 'failed', cache = null)
+``` 
+effect不再支持callback, 也没有返回值了
+effect不再支持afterXXX了
+
+去除了所有关于loading的东西， dva本身已经有插件支持了 
+
+reducer 在处理 action的时候，
+0.0.13 是 action.result 表示是从 effect中处理的内容，
+现在统一成action.payload
+原action.payload 已经去除， 只能从 action.source里获取
+
+
+
 ## Install 安装
 ```
 npm install dva-model
