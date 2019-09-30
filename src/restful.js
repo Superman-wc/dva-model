@@ -32,7 +32,7 @@ export function itemSuccess(state, action) {
 export function createSuccess(state, action) {
   const { list = [], total = 0 } = state;
   const { payload } = action;
-  return { ...state, list: [...list, payload], total: total + 1, item: payload };
+  return { ...state, list: [payload, ...list], total: total + 1, item: payload };
 }
 
 /**

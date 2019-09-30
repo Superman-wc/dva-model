@@ -12,11 +12,15 @@ export default function effect(api, success, fail = 'failed', cache = null) {
       if (cache) {
         const payload = cache(null, action);
         if (payload) {
+          if (action.resolve) {
+            action.resolve(payload);
+          }
           yield saga.put({
             type: action.success || success,
             payload,
             source: action,
           });
+          return payload;
         }
       }
 
@@ -40,10 +44,11 @@ export default function effect(api, success, fail = 'failed', cache = null) {
           action.resolve(result);
         }
         yield saga.put({
-          type: action.fail || success,
+          type: action.success || success,
           payload: result,
           source: action,
         });
+        return result;
       }
     }
   );
