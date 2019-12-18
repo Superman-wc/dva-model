@@ -18,6 +18,7 @@ export default function effect(api, success, fail = 'failed', cache = null) {
           yield saga.put({
             type: action.success || success,
             payload,
+            result: payload, // 兼容0.0.13
             source: action,
           });
           return payload;
@@ -46,6 +47,7 @@ export default function effect(api, success, fail = 'failed', cache = null) {
         yield saga.put({
           type: action.success || success,
           payload: result,
+          result,   // 兼容0.0.13
           source: action,
         });
         return result;
