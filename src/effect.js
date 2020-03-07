@@ -24,9 +24,26 @@ export default function effect(api, success, fail = 'failed', cache = null) {
           return payload;
         }
       }
-
-      const { result, error } = yield saga.call(api, action.payload);
-      if (error) {
+      try {
+        const { result, error } = yield saga.call(api, action.payload);
+        if (error) {
+          throw error;
+        } else {
+          if (cache) {
+            cache(result, action);
+          }
+          if (action.resolve) {
+            action.resolve(result);
+          }
+          yield saga.put({
+            type: action.success || success,
+            payload: result,
+            result,   // 兼容0.0.13
+            source: action,
+          });
+          return result;
+        }
+      } catch (error) {
         console.error(error);
         error.action = action; // 如果可以的话，在处理完错误后重新dispatch(action);
         if (action.reject) {
@@ -37,23 +54,9 @@ export default function effect(api, success, fail = 'failed', cache = null) {
           payload: error,
           source: action,
         });
-        if(!action.reject){  // 如果没有对这个action作reject处理，则做统一处理
+        if (!action.reject) {  // 如果没有对这个action作reject处理，则做统一处理
           throw error;
         }
-      } else {
-        if (cache) {
-          cache(result, action);
-        }
-        if (action.resolve) {
-          action.resolve(result);
-        }
-        yield saga.put({
-          type: action.success || success,
-          payload: result,
-          result,   // 兼容0.0.13
-          source: action,
-        });
-        return result;
       }
     }
   );
