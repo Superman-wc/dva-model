@@ -37,6 +37,9 @@ export default function effect(api, success, fail = 'failed', cache = null) {
           payload: error,
           source: action,
         });
+        if(!action.reject){  // 如果没有对这个action作reject处理，则做统一处理
+          throw error;
+        }
       } else {
         if (cache) {
           cache(result, action);
