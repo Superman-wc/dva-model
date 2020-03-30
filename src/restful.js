@@ -6,11 +6,11 @@
  */
 export function listSuccess(state, action) {
   const { payload = {}, source = {} } = action;
-  let { list = [], total = 0, ...otherPayoad } = payload;
+  let { list = [], total = 0, ...otherPayload } = payload;
   if (source.loadNext) {
     list = (state.list || []).concat(list);
   }
-  return { ...state, ...otherPayoad, total, list };
+  return { ...state, ...otherPayload, total, list };
 }
 
 /**
@@ -32,7 +32,9 @@ export function itemSuccess(state, action) {
 export function createSuccess(state, action) {
   const { list = [], total = 0 } = state;
   const { payload } = action;
-  return { ...state, list: [payload, ...list], total: total + 1, item: payload };
+  // fixbug 2.4.0 Error: Array.from requires an array-like object - not null or undefined
+  // state.list === null 会导致错误，[...null||undefined] 是会出错的
+  return { ...state, list: [payload, ...(list||[])], total: total + 1, item: payload };
 }
 
 /**
@@ -44,7 +46,7 @@ export function createSuccess(state, action) {
 export function modifySuccess(state, action) {
   let { list = [] } = state;
   const { payload = {}, source = {} } = action;
-  if (list && list.length) {
+  if (Array.isArray(list) && list.length) {
     list = list.reduce((arr, it) => {
       arr.push(it.id == payload.id ? (source.merge ? { ...it, ...payload } : payload) : it);
       return arr;
@@ -60,14 +62,14 @@ export function modifySuccess(state, action) {
  * @returns {{total: *, list: *}}
  */
 export function removeSuccess(state, action) {
-  let { item, list, total } = state;
+  let { item, list=[], total } = state;
   if (item && item.id == action.payload.id) {
     delete state.item;
   }
   if (total) {
     total = total - 1;
   }
-  if (list && list.length) {
+  if (Array.isArray(list) && list.length) {
     list = list.reduce((arr, it) => {
       if (it.id != action.payload.id) {
         arr.push(it);
